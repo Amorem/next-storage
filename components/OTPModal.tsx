@@ -1,7 +1,8 @@
+"use client";
+
 import {
 	AlertDialog,
 	AlertDialogAction,
-	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
@@ -12,12 +13,13 @@ import {
 import {
 	InputOTP,
 	InputOTPGroup,
-	InputOTPSeparator,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { sendEmailOTP, verifySecret } from "@/lib/actions/user.action";
+import { useRouter } from "next/navigation";
 
 export default function OTPModal({
 	accountId,
@@ -30,11 +32,17 @@ export default function OTPModal({
 	const [otp, setOtp] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
+	const router = useRouter();
+
 	async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
 		e.preventDefault();
 		setIsLoading(true);
 		try {
 			// Call API to verify OTP
+			const sessionId = await verifySecret({ secret: otp, accountId });
+			if (sessionId) {
+				router.push("/");
+			}
 		} catch (error) {
 			console.log("Failed to verify OTP", error);
 		}
@@ -44,6 +52,7 @@ export default function OTPModal({
 	async function resendOTP() {
 		try {
 			// Call API to resend OTP
+			await sendEmailOTP({ email });
 		} catch (error) {
 			console.log("Failed to resend OTP", error);
 		}
