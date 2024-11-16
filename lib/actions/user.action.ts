@@ -7,6 +7,7 @@ import { appwriteConfig } from "@/lib/appwrite/config";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
+import { redirect } from "next/navigation";
 
 export async function createAccount({
 	fullName,
@@ -100,4 +101,31 @@ export async function getCurrentUser() {
 	if (user.total === 0) return null;
 
 	return parseStringify(user.documents[0]);
+}
+
+export async function signOutUser() {
+	const { account } = await createSessionClient();
+	try {
+		await account.deleteSession("current");
+		(await cookies()).delete("appwrite-session");
+	} catch (error) {
+		handleError(error, "Failed to sign out");
+	} finally {
+		redirect("/sign-in");
+	}
+}
+
+export async function signInUser({ email }: { email: string }) {
+	try {
+		const existingUser = await getUserByEmail(email);
+		if (!existingUser) {
+			return parseStringify({ accountId: null, error: "User not found" });
+		}
+		if (existingUser) {
+			await sendEmailOTP({ email });
+			return parseStringify({ accountId: existingUser.accountId });
+		}
+	} catch (error) {
+		handleError(error, "Failed to sign in");
+	}
 }

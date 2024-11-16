@@ -1,3 +1,4 @@
+import { signOutUser } from "@/lib/actions/user.action";
 import FileUploader from "./FileUploader";
 import Search from "./Search";
 import { Button } from "./ui/button";
@@ -9,7 +10,12 @@ export default function Header() {
 			<Search />
 			<div className="header-wrapper">
 				<FileUploader />
-				<form>
+				<form
+					action={async function () {
+						"use server";
+						await signOutUser();
+					}}
+				>
 					<Button type="submit" className="sign-out-button">
 						<Image
 							src="/assets/icons/logout.svg"
