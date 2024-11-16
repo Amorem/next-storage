@@ -2,12 +2,27 @@
 import {
 	Sheet,
 	SheetContent,
+	SheetDescription,
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Separator } from "./ui/separator";
+import { navItems } from "@/constants";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import FileUploader from "./FileUploader";
+
+interface MobileNavigationProps {
+	ownerId: string;
+	accountId: string;
+	fullName: string;
+	avatar: string;
+	email: string;
+}
 
 export default function MobileNavigation({
 	ownerId,
@@ -15,15 +30,9 @@ export default function MobileNavigation({
 	fullName,
 	avatar,
 	email,
-}: {
-	ownerId: string;
-	accountId: string;
-	fullName: string;
-	avatar: string;
-	email: string;
-}) {
+}: MobileNavigationProps) {
 	const [open, setOpen] = useState(false);
-	const { pathname } = usePathname();
+	const pathname = usePathname();
 	return (
 		<header className="mobile-header">
 			<Image
@@ -53,8 +62,58 @@ export default function MobileNavigation({
 								height={44}
 								className="header-user-avatar"
 							/>
+							<div className="sm:hidden lg:block">
+								<p className="subtitle-2 capitalize">{fullName}</p>
+								<p className="caption">{email}</p>
+							</div>
 						</div>
+						<Separator className="mb-4 bg-light-200/20" />
 					</SheetTitle>
+					<SheetDescription>
+						<nav className="mobile-nav">
+							<ul className="mobile-nav-list">
+								{navItems.map(({ url, name, icon }) => (
+									<Link href={url} key={name} className="lg:w-full">
+										<li
+											className={cn(
+												"mobile-nav-item",
+												pathname === url && "shad-active"
+											)}
+										>
+											<Image
+												src={icon}
+												alt={name}
+												width={24}
+												height={24}
+												className={cn(
+													"nav-icon",
+													pathname === url && "nav-icon-active"
+												)}
+											/>
+											<p className="">{name}</p>
+										</li>
+									</Link>
+								))}
+							</ul>
+						</nav>
+						<Separator className="my-5 bg-light-200/20" />
+						<div className="flex flex-col justify-between gap-5 pb-5">
+							<FileUploader />
+							<Button
+								type="submit"
+								className="mobile-sign-out-button"
+								onClick={() => {}}
+							>
+								<Image
+									src="/assets/icons/logout.svg"
+									alt="logo"
+									width={24}
+									height={24}
+								/>
+								<p>Logout</p>
+							</Button>
+						</div>
+					</SheetDescription>
 				</SheetContent>
 			</Sheet>
 		</header>
