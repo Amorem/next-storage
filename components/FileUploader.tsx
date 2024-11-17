@@ -1,7 +1,7 @@
 "use client";
 
 import { useDropzone } from "react-dropzone";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "./ui/button";
 import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Image from "next/image";
@@ -24,6 +24,14 @@ export default function FileUploader({
 	}, []);
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+	function handleRemoveFile(
+		event: React.MouseEvent<HTMLImageElement, MouseEvent>,
+		fileName: string
+	) {
+		event.stopPropagation();
+		setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
+	}
+
 	return (
 		<div className="cursor-pointer" {...getRootProps()}>
 			<input {...getInputProps()} />
@@ -44,7 +52,7 @@ export default function FileUploader({
 						return (
 							<li
 								key={`${file.name}-${index}`}
-								className="uploader-preview-items"
+								className="uploader-preview-item"
 							>
 								<div className="flex items-center gap-3">
 									<Thumbnail
@@ -52,7 +60,23 @@ export default function FileUploader({
 										extension={extension}
 										url={convertFileToUrl(file)}
 									/>
+									<div className="preview-item-name">
+										{file.name}
+										<Image
+											src="/assets/icons/file-loader.gif"
+											height={26}
+											width={80}
+											alt="loader"
+										/>
+									</div>
 								</div>
+								<Image
+									src="/assets/icons/remove.svg"
+									height={24}
+									width={24}
+									alt="remove"
+									onClick={(event) => handleRemoveFile(event, file.name)}
+								/>
 							</li>
 						);
 					})}
